@@ -104,18 +104,18 @@ jobs:
       # Set up AWS Credentials
         # Create backend infrastructure
       # Checkout code from git
-      - run:
-          name: Ensure back-end infrastructure exists
-          command: |
-            pwd
-            ls
-            ls $(eval echo "$CIRCLE_WORKING_DIRECTORY")
-            aws cloudformation deploy \
-              --template-file backend.yml \
-              --tags project=project-3-backend \
-              --stack-name Udapeople-Backend-${CIRCLE_WORKFLOW_ID:0:5} \
-              --region us-east-1 \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}"  
+#      - run:
+#          name: Ensure back-end infrastructure exists
+#          command: |
+#            pwd
+#            ls
+#            ls $(eval echo "$CIRCLE_WORKING_DIRECTORY")
+#            aws cloudformation deploy \
+#              --template-file backend.yml \
+#              --tags project=project-3-backend \
+#              --stack-name Udapeople-Backend-${CIRCLE_WORKFLOW_ID:0:5} \
+#              --region us-east-1 \
+#              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}"
       - run:
           name: Ensure front-end infrastructure exist
           command: |
