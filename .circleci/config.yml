@@ -41,7 +41,7 @@ jobs:
             ls
             ls $(eval echo "$CIRCLE_WORKING_DIRECTORY")
             cd $(eval echo "$PROJECT_ROOT_DIR/frontend")
-            npm install --force
+            npm install
             npm run build --force
       - save_cache:
           paths: [/home/circleci/project/frontend/node_modules]
@@ -82,7 +82,6 @@ jobs:
             npm audit fix --audit-level=critical --force
             # If the "npm audit fix" command above could not fix all critical vulnerabilities, try “npm audit fix --force” again
             npm audit fix --force
-            npm audit --audit-level=critical
 
 workflows:
   default:
