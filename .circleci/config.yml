@@ -166,18 +166,18 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-        fingerprints: [ "f4:85:15:29:15:71:41:1a:de:65:52:b8:5b:3b:0e:1b" ]
+          fingerprints: ["f4:85:15:29:15:71:41:1a:de:65:52:b8:5b:3b:0e:1b"]
       - run:
-        name: "Install Ansible"
-        command: |
-          apk add --update ansible
+          name: "Install Ansible"
+          command: |
+            apk add --update ansible
       - attach_workspace:
           at: ~/
       - run:
-        name: Run Playbook and Configure server
-        command: |
-          cd ~/project/
-          ansible-playbook -i ~/inventory main.yml --ssh-common-args='-o StrictHostKeyChecking=no'
+          name: Run Playbook and Configure server
+          command: |
+            cd ~/project/
+            ansible-playbook -i ~/inventory main.yml --ssh-common-args='-o StrictHostKeyChecking=no'
 
   test-frontend:
     docker:
