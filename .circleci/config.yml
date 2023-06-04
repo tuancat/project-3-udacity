@@ -112,7 +112,7 @@ jobs:
             ls $(eval echo "$CIRCLE_WORKING_DIRECTORY")
             cd $(eval echo "$PROJECT_ROOT_DIR/.circleci")
             aws cloudformation deploy \
-              --template-file $(eval echo "$PROJECT_ROOT_DIR/.circleci/files/backend.yml") \
+              --template-file .circleci/files/backend.yml \
               --tags project-3-backend \
               --stack-name Udapeople-Backend-${CIRCLE_WORKFLOW_ID:0:5} \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}"  
@@ -121,7 +121,7 @@ jobs:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
-              --template-file $(eval echo "$PROJECT_ROOT_DIR/.circleci/files/frontend.yml") \
+              --template-file .circleci/files/backend.yml \
               --tags project-3-frontend \
               --stack-name Udapeople-Frontend-${CIRCLE_WORKFLOW_ID:0:5} \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}"  
