@@ -44,5 +44,5 @@
 
     
 - name: Executing node and run
-  shell: |
-    pm2 start ~/web/index.js -f
+  shell:
+    cmd: pm2 start ~/web/index.js --force
