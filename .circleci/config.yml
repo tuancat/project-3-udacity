@@ -44,7 +44,7 @@ jobs:
             npm install
             npm run build
       - save_cache:
-          paths: [/home/circleci/project/build-cicd-pipeline/final-project/frontend/node_modules]
+          paths: [/home/circleci/project/frontend/node_modules]
           key: frontend-build
 
   test-frontend:
@@ -60,7 +60,7 @@ jobs:
       - run:
           name: Test frontend
           command: |
-            cd $(eval echo "$CIRCLE_WORKING_DIRECTORY/$PROJECT_ROOT_DIR/frontend")
+            cd $(eval echo "$PROJECT_ROOT_DIR/frontend")
             npm install
             npm run test
   scan-frontend:
@@ -78,7 +78,7 @@ jobs:
       - run:
           name: "Scan frontend"
           command: |
-            cd $(eval echo "$CIRCLE_WORKING_DIRECTORY/$PROJECT_ROOT_DIR/frontend")
+            cd $(eval echo "$PROJECT_ROOT_DIR/frontend")
             npm audit fix --audit-level=critical --force
             # If the "npm audit fix" command above could not fix all critical vulnerabilities, try “npm audit fix --force” again
             npm audit fix --force
