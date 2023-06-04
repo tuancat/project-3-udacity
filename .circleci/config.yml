@@ -124,7 +124,7 @@ jobs:
               --tags project=project-3-frontend \
               --stack-name Udapeople-Frontend-${CIRCLE_WORKFLOW_ID:0:5} \
               --region us-east-1 \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}"  
+              --parameter-overrides MyBucketName="bucket-${CIRCLE_WORKFLOW_ID:0:5}"
       - run:
           name: Add back-end ip to ansible inventory
           command: |
