@@ -38,6 +38,8 @@ jobs:
           name: Build frontend
           command: |
             pwd
+            ls
+            ls $(eval echo "$CIRCLE_WORKING_DIRECTORY")
             cd $(eval echo "$CIRCLE_WORKING_DIRECTORY/$PROJECT_ROOT_DIR/frontend")
             npm install
             npm run build
