@@ -44,22 +44,6 @@ jobs:
           paths: [/home/circleci/project/build-cicd-pipeline/final-project/frontend/node_modules]
           key: frontend-build
 
-  build-backend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys: [backend-build]
-      - run:
-          name: Back-end build
-          command: |
-            # Your code here
-            exit 1
-      - save_cache:
-          paths: [backend/node_modules]
-          key: backend-build
-
   test-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -76,15 +60,6 @@ jobs:
             cd $(eval echo "$CIRCLE_WORKING_DIRECTORY/$PROJECT_ROOT_DIR/frontend")
             npm install
             npm run test
-
-  test-backend:
-    docker:
-    # Docker image here
-    steps:
-    # Checkout code from git
-    # Restore from cache
-    # Your job code here
-
   scan-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -106,13 +81,6 @@ jobs:
             npm audit fix --force
             npm audit --audit-level=critical
 
-  scan-backend:
-    docker:
-    # Docker image here
-    steps:
-    # Checkout code from git
-    # Restore from cache
-    # Your job code here
 workflows:
   default:
     jobs:
