@@ -112,8 +112,9 @@ jobs:
             ls $(eval echo "$CIRCLE_WORKING_DIRECTORY")
             aws cloudformation deploy \
               --template-file backend.yml \
-              --tags project-3-backend \
+              --tags project=project-3-backend \
               --stack-name Udapeople-Backend-${CIRCLE_WORKFLOW_ID:0:5} \
+              --region us-east-1 \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}"  
               exit 1
       - run:
@@ -121,8 +122,9 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file frontend.yml \
-              --tags project-3-frontend \
+              --tags project=project-3-frontend \
               --stack-name Udapeople-Frontend-${CIRCLE_WORKFLOW_ID:0:5} \
+              --region us-east-1 \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}"  
               exit 1
       - run:
