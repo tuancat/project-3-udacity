@@ -308,8 +308,7 @@ jobs:
 workflows:
   default:
     jobs:
-      - add_publicipaddress_to_inventory:
-          requires: [ deploy-infrastructure ]
+      - add_publicipaddress_to_inventory
       - configure-infrastructure:
           requires: [ add_publicipaddress_to_inventory ]
       - run-migrations:
