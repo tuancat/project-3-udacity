@@ -41,8 +41,8 @@ jobs:
             ls
             ls $(eval echo "$CIRCLE_WORKING_DIRECTORY")
             cd $(eval echo "$PROJECT_ROOT_DIR/frontend")
-            npm install
-            npm run build
+            npm install --force
+            npm run build --force
       - save_cache:
           paths: [/home/circleci/project/frontend/node_modules]
           key: frontend-build
