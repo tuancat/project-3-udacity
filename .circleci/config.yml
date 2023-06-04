@@ -20,9 +20,9 @@ commands:
           name: "Export environment variable"
           command: |
             echo 'export WORKSPACE_DIR="/home/circleci/workspace"' >> "$BASH_ENV"
-            echo 'export PROJECT_ROOT_DIR="build-cicd-pipeline/final-project"' >> "$BASH_ENV"
-            echo 'export TEMPLATE_ROOT_DIR="build-cicd-pipeline/create-infrastructure"' >> "$BASH_ENV"
-            echo 'export PROJECT_TAG="tuancnh-Udacity-final-project"' >> "$BASH_ENV"
+            echo 'export PROJECT_ROOT_DIR="project-3-udacity"' >> "$BASH_ENV"
+            echo 'export TEMPLATE_ROOT_DIR="project-3-udacity"' >> "$BASH_ENV"
+            echo 'export PROJECT_TAG="tuancnh-Udacity-final-project-3"' >> "$BASH_ENV"
 jobs:
   build-frontend:
     docker:
