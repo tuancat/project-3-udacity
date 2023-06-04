@@ -234,6 +234,6 @@ jobs:
 workflows:
   default:
     jobs:
-      - deploy-infrastructure:
+      - deploy-infrastructure
       - notify:
           context: project-3
