@@ -281,7 +281,9 @@ jobs:
 workflows:
   default:
     jobs:
-      - add_publicipaddress_to_inventory
+      - deploy-infrastructure
+      - add_publicipaddress_to_inventory:
+          requires: [ deploy-infrastructure ]
       - configure-infrastructure:
           requires: [ add_publicipaddress_to_inventory ]
       - notify:
