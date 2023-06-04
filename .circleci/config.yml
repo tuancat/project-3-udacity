@@ -46,6 +46,51 @@ jobs:
       - save_cache:
           paths: [/home/circleci/project/frontend/node_modules]
           key: frontend-build
+  build-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      # This command will pull all of the files into a directory called project which can be found at ~/project.
+      - checkout
+      # Export environment variable
+      - exports
+      - restore_cache:
+          keys: [ backend-build ]
+      - run:
+          name: Save all db varibles in env file
+          command: |
+            cd $(eval echo "$PROJECT_ROOT_DIR/backend")
+            touch .env
+            echo NODE_ENV=production >> .env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> .env
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> .env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> .env
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> .env
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> .env
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> .env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> .env
+            echo TYPEORM_PORT=$TYPEORM_PORT >> .env
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> .env
+      - run:
+          name: Build backend
+          command: |
+            cd $(eval echo "$PROJECT_ROOT_DIR/backend")
+            npm install
+            npm run build
+            cd ..
+            # Compress the backend folder
+            tar -C backend -czvf artifact-backend.tar.gz .
+            # no error if existing, make parent directories as needed
+            mkdir --parents $WORKSPACE_DIR
+            # Move the compressed file to workspace folder
+            mv artifact-backend.tar.gz $WORKSPACE_DIR/artifact-backend.tar.gz
+      - persist_to_workspace:
+          root: /home/circleci/workspace
+          paths:
+            - "artifact-backend.tar.gz"
+      - save_cache:
+          paths: [ /home/circleci/project/backend/node_modules ]
+          key: backend-build
 
   test-frontend:
     docker:
@@ -88,6 +133,7 @@ workflows:
   default:
     jobs:
       - build-frontend
+      - build-backend
       - test-frontend:
           requires: [build-frontend]
       - scan-frontend:
