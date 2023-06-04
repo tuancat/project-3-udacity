@@ -104,18 +104,18 @@ jobs:
       # Set up AWS Credentials
         # Create backend infrastructure
       # Checkout code from git
-#      - run:
-#          name: Ensure back-end infrastructure exists
-#          command: |
-#            pwd
-#            ls
-#            ls $(eval echo "$CIRCLE_WORKING_DIRECTORY")
-#            aws cloudformation deploy \
-#              --template-file backend.yml \
-#              --tags project=project-3-backend \
-#              --stack-name Udapeople-Backend-${CIRCLE_WORKFLOW_ID:0:5} \
-#              --region us-east-1 \
-#              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}"
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            pwd
+            ls
+            ls $(eval echo "$CIRCLE_WORKING_DIRECTORY")
+            aws cloudformation deploy \
+              --template-file backend.yml \
+              --tags project=project-3-backend \
+              --stack-name Udapeople-Backend-${CIRCLE_WORKFLOW_ID:0:5} \
+              --region us-east-1 \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}"
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -130,12 +130,54 @@ jobs:
           command: |
             aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text
             aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> inventory.txt
-            exit 1
       - persist_to_workspace:
           root: ~/
           paths:
             - project/inventory.txt
 
+  add_publicipaddress_to_inventory:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      # This command will pull all of the files into a directory called project which can be found at ~/project.
+      - checkout
+      - exports
+      - run:
+          name: "Get EC2 Instances Public IP Address"
+          command: |
+            cd ~/project/
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag:project,Values=project-3-backend" \
+            --output text >> inventory
+      - run:
+          name: "Move inventory file into workspace"
+          command: |
+            cd ~/project/
+            mv inventory ~/inventory
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - "inventory"
+
+  configure-infrastructure:
+    docker:
+      - image: python:3.10.10-alpine3.17
+    steps:
+      - checkout
+      - add_ssh_keys:
+        fingerprints: [ "f4:85:15:29:15:71:41:1a:de:65:52:b8:5b:3b:0e:1b" ]
+      - run:
+        name: "Install Ansible"
+        command: |
+          apk add --update ansible
+      - attach_workspace:
+          at: ~/
+      - run:
+        name: Run Playbook and Configure server
+        command: |
+          cd ~/project/
+          ansible-playbook -i ~/inventory main.yml --ssh-common-args='-o StrictHostKeyChecking=no'
   test-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -234,6 +276,21 @@ jobs:
 workflows:
   default:
     jobs:
-      - deploy-infrastructure
+      - build-frontend
+      - build-backend
+      - test-frontend:
+        requires: [ build-frontend ]
+      - test-backend:
+        requires: [ build-backend ]
+      - scan-backend:
+        requires: [ build-backend ]
+      - scan-frontend:
+        requires: [ build-frontend ]
+      - deploy-infrastructure:
+        requires: [ test-frontend, test-backend, scan-frontend, scan-backend ]
+      - add_publicipaddress_to_inventory:
+        requires: [ test-frontend, test-backend, scan-frontend, scan-backend ]
+      - configure_infrastructure:
+        requires: [ add_publicipaddress_to_inventory ]
       - notify:
           context: project-3
