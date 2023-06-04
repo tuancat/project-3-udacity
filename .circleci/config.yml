@@ -178,6 +178,7 @@ jobs:
         command: |
           cd ~/project/
           ansible-playbook -i ~/inventory main.yml --ssh-common-args='-o StrictHostKeyChecking=no'
+
   test-frontend:
     docker:
       - image: circleci/node:13.8.0
