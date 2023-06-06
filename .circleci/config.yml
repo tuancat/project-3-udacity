@@ -340,7 +340,7 @@ jobs:
           event: always
 
 workflows:
-  default:
+  my-workflow:
     jobs:
       - add_publicipaddress_to_inventory
       - configure-infrastructure:
