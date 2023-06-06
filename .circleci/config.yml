@@ -200,11 +200,10 @@ jobs:
           command: |
             cd $(eval echo "$PROJECT_ROOT_DIR/backend")
             npm install
-            echo $TYPEORM_HOST
-            echo $TYPEORM_CONNECTION
-            echo $TYPEORM_DATABASE
-            echo $TYPEORM_USERNAME
-            echo $TYPEORM_USERNAME
+            echo $(eval echo "$TYPEORM_HOST")
+            echo $(eval echo "TYPEORM_PORT")
+            echo $(eval echo "TYPEORM_USERNAME")
+            nc -zv database-2.cej6qdae1a10.us-east-1.rds.amazonaws.com 5432
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to memstash
