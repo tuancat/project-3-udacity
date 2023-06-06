@@ -239,6 +239,32 @@ jobs:
             npm run build 
             tar -czvf "artifact-$CUR_SHORT_HASH.tar.gz" dist
             aws s3 sync dist s3://bucket-91019 --delete
+  deploy-backend:
+    executor:
+      name: python/default
+      tag: "3.11.2"
+    steps:
+      # This command will pull all of the files into a directory called project which can be found at ~/project.
+      - checkout
+      # Export environment variable
+      - exports
+      - add_ssh_keys:
+          fingerprints: ["f4:85:15:29:15:71:41:1a:de:65:52:b8:5b:3b:0e:1b"]
+      - python/install-packages:
+          args: ansible
+      - attach_workspace:
+          at: /home/circleci/workspace
+      - run:
+          name: Deploy backend
+          command: |
+            # Move the compressed file to ansible folder
+            # no error if existing, make parent directories as needed
+            mkdir --parents $(eval echo "$CIRCLE_WORKING_DIRECTORY/.circleci/ansible/roles/deploy/files")
+            mv $WORKSPACE_DIR/artifact-backend.tar.gz $(eval echo "$CIRCLE_WORKING_DIRECTORY/.circleci/ansible/roles/deploy/files/artifact-backend.tar.gz")
+      - run:
+          name: "Ansible play book for deploy backend"
+          command: |
+            ansible-playbook -i ~/inventory $(eval echo "$CIRCLE_WORKING_DIRECTORY/.circleci/ansible/deploy-backend.yml")
 
   test-frontend:
     docker:
@@ -338,5 +364,13 @@ jobs:
 workflows:
   my-workflow:
     jobs:
-      - deploy-frontend
+      - add_publicipaddress_to_inventory
+      - configure-infrastructure:
+          requires: [ add_publicipaddress_to_inventory ]
+      - deploy-frontend:
+          requires: [ configure-infrastructure ]
+      - deploy-backend:
+          requires: [ configure-infrastructure ]
+      - notify:
+          context: project-3
 
