@@ -20,5 +20,6 @@
     cmd: |
       cd ~/server
       npm install
+      npm run migrations > migrations_dump.txt
       pm2 stop default
       pm2 start npm -- start --wait-ready
