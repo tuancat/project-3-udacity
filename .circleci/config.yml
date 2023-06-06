@@ -255,8 +255,18 @@ jobs:
       - attach_workspace:
           at: /home/circleci/workspace
       - run:
+          name: "Install AWS CLI"
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - run:
           name: Deploy backend
           command: |
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag:project,Values=project-3-backend" \
+            --output text >> $(eval echo "$CIRCLE_WORKING_DIRECTORY/.circleci/ansible/inventory")
             # Move the compressed file to ansible folder
             # no error if existing, make parent directories as needed
             mkdir --parents $(eval echo "$CIRCLE_WORKING_DIRECTORY/.circleci/ansible/roles/deploy/files")
@@ -264,7 +274,7 @@ jobs:
       - run:
           name: "Ansible play book for deploy backend"
           command: |
-            ansible-playbook -i ~/inventory $(eval echo "$CIRCLE_WORKING_DIRECTORY/.circleci/ansible/deploy-backend.yml")
+            ansible-playbook -i $(eval echo "$CIRCLE_WORKING_DIRECTORY/.circleci/ansible/inventory") $(eval echo "$CIRCLE_WORKING_DIRECTORY/.circleci/ansible/deploy-backend.yml")
 
   test-frontend:
     docker:
