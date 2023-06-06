@@ -238,11 +238,7 @@ jobs:
             npm install
             npm run build 
             tar -czvf "artifact-$CUR_SHORT_HASH.tar.gz" dist
-      - run:
-          name: Deploy frontend objects
-          command: |
             aws s3 sync dist s3://bucket-91019 --delete
-      # Here's where you will add some code to rollback on failure
 
   test-frontend:
     docker:
@@ -342,10 +338,5 @@ jobs:
 workflows:
   my-workflow:
     jobs:
-      - add_publicipaddress_to_inventory
-      - configure-infrastructure:
-          requires: [ add_publicipaddress_to_inventory ]
-      - deploy-frontend:
-          requires: [ configure-infrastructure ]
-      - notify:
-          context: project-3
+      - deploy-frontend
+
