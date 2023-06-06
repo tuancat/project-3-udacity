@@ -364,13 +364,14 @@ jobs:
 workflows:
   my-workflow:
     jobs:
+      - build-backend
       - add_publicipaddress_to_inventory
       - configure-infrastructure:
           requires: [ add_publicipaddress_to_inventory ]
       - deploy-frontend:
           requires: [ configure-infrastructure ]
       - deploy-backend:
-          requires: [ configure-infrastructure ]
+          requires: [ build-backend, configure-infrastructure ]
       - notify:
           context: project-3
 
