@@ -238,7 +238,6 @@ jobs:
             npm install
             npm run build 
             tar -czvf "artifact-$CUR_SHORT_HASH.tar.gz" dist
-
       - run:
           name: Deploy frontend objects
           command: |
