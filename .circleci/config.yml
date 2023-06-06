@@ -443,7 +443,7 @@ workflows:
       - deploy-backend:
           requires: [ build-backend, configure-infrastructure ]
       - smoke-test:
-          [deploy-frontend, deploy-backend]
+          requires: [deploy-frontend, deploy-backend]
       - notify:
           context: project-3
 
