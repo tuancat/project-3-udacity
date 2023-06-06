@@ -219,6 +219,7 @@ jobs:
             echo TYPEORM_CONNECTION
             echo TYPEORM_DATABASE
             echo TYPEORM_USERNAME
+            echo TYPEORM_USERNAME
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to memstash
