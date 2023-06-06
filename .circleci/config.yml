@@ -229,11 +229,12 @@ jobs:
       - run:
           name: Get backend url
           command: |
+            cd $(eval echo "$PROJECT_ROOT_DIR/frontend")
+            touch .env
             export BACKEND_IP=34.239.134.207
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
-            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
-            cat frontend/.env
+            echo API_URL="http://${BACKEND_IP}:3030" >> .env
             npm install
             npm run build 
             tar -czvf "artifact-$CUR_SHORT_HASH.tar.gz" dist
