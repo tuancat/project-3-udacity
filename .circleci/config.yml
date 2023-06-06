@@ -214,6 +214,36 @@ jobs:
               curl -H "Content-Type: text/plain" -H "token: 7933fe63-4687-4fa1-8426-aa25aa1730ec" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             fi
 
+  deploy-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - exports
+      - run:
+          name: "Install AWS CLI"
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=34.239.134.207
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL = ${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
+            npm install
+            npm run build 
+            tar -czvf "artifact-$CUR_SHORT_HASH.tar.gz" dist
+
+      - run:
+          name: Deploy frontend objects
+          command: |
+            aws s3 sync dist s3://bucket-91019 --delete
+      # Here's where you will add some code to rollback on failure
+
   test-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -315,7 +345,7 @@ workflows:
       - add_publicipaddress_to_inventory
       - configure-infrastructure:
           requires: [ add_publicipaddress_to_inventory ]
-      - run-migrations:
+      - deploy-frontend:
           requires: [ configure-infrastructure ]
       - notify:
           context: project-3
