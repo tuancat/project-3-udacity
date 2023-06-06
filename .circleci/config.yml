@@ -215,11 +215,11 @@ jobs:
           command: |
             cd $(eval echo "$PROJECT_ROOT_DIR/backend")
             npm install
-            echo TYPEORM_HOST
-            echo TYPEORM_CONNECTION
-            echo TYPEORM_DATABASE
-            echo TYPEORM_USERNAME
-            echo TYPEORM_USERNAME
+            echo $TYPEORM_HOST
+            echo $TYPEORM_CONNECTION
+            echo $TYPEORM_DATABASE
+            echo $TYPEORM_USERNAME
+            echo $TYPEORM_USERNAME
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to memstash
