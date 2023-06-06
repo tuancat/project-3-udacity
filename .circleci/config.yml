@@ -276,6 +276,66 @@ jobs:
           command: |
             ansible-playbook -i $(eval echo "$CIRCLE_WORKING_DIRECTORY/.circleci/ansible/inventory") $(eval echo "$CIRCLE_WORKING_DIRECTORY/.circleci/ansible/deploy-backend.yml")
 
+  smoke-test:
+    executor: aws-cli/default
+    steps:
+      # This command will pull all of the files into a directory called project which can be found at ~/project.
+      - checkout
+      # Export environment variable
+      - exports
+      # Set up AWS Credentials
+      - aws-cli/setup
+      - attach_workspace:
+          at: /home/circleci/workspace
+      - run:
+          name: Frontend smoke test.
+          command: |
+            URL="http://bucket-91019.s3-website-us-east-1.amazonaws.com/#/employees"            
+            echo ${URL} 
+            if curl -s ${URL} | grep "Welcome"
+            then
+            	# Change this to 0 after the job fails
+              return 1
+            else
+              return 1
+            fi
+      - run:
+          name: "Backend smoke test"
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances --query Reservations[*].Instances[*].PublicIpAddress --filters Name=tag:project,Values=project-3-backend --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+              return 0
+            else
+              return 1
+            fi
+
+  promote-to-production:
+    executor: aws-cli/default
+    steps:
+      # This command will pull all of the files into a directory called project which can be found at ~/project.
+      - checkout
+      # Export environment variable
+      - exports
+      # Set up AWS Credentials
+      - aws-cli/setup
+      - attach_workspace:
+          at: /home/circleci/workspace
+      - deploy_stack:
+          stack_name: production-distro
+          template_file: $CIRCLE_WORKING_DIRECTORY/$TEMPLATE_ROOT_DIR/cloudfront.yml
+          parameter_overrides: S3StaticHost=$(cat $WORKSPACE_DIR/websiteurl)
+      # Rollback if fail
+      - revert-migrations:
+          migrations-key: migration_$CUR_SHORT_HASH
+      - destroy_environment:
+          stack_name: Udapeople-Frontend-$CUR_SHORT_HASH
+          bucket_name: udapeople-frontend-$CUR_SHORT_HASH
+      - destroy_environment:
+          stack_name: Udapeople-Backend-$CUR_SHORT_HASH
+
   test-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -382,6 +442,8 @@ workflows:
           requires: [ configure-infrastructure ]
       - deploy-backend:
           requires: [ build-backend, configure-infrastructure ]
+      - smoke-test:
+          [deploy-frontend, deploy-backend]
       - notify:
           context: project-3
 
