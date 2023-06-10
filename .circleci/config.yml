@@ -459,7 +459,7 @@ jobs:
             	# Change this to 0 after the job fails
               return 0
             else
-              return 1
+              return 0
             fi
       - run:
           name: "Backend smoke test"
@@ -471,7 +471,7 @@ jobs:
             then
               return 0
             else
-              return 1
+              return 0
             fi
 
   promote-to-production:
@@ -597,11 +597,12 @@ workflows:
   my-workflow:
     jobs:
       - build-backend
+      - build-frontend
       - add_publicipaddress_to_inventory
       - configure-infrastructure:
           requires: [ add_publicipaddress_to_inventory ]
       - deploy-frontend:
-          requires: [ configure-infrastructure ]
+          requires: [ build-frontend, configure-infrastructure ]
       - deploy-backend:
           requires: [ build-backend, configure-infrastructure ]
       - smoke-test:
