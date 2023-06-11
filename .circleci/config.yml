@@ -26,7 +26,7 @@ commands:
   revert-migrations:
     description: Revert the last migration
     parameters:
-      workflow_id:
+      migrations-key:
         type: string
     steps:
       - run:
@@ -448,7 +448,7 @@ jobs:
             then
               echo "Frontend test passed"
               echo $test_result
-              exit 0
+              exit 1
             else
               echo $test_result
               exit 1
@@ -616,16 +616,6 @@ jobs:
 workflows:
   my-workflow:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [ build-frontend ]
-      - test-backend:
-          requires: [ build-backend ]
-      - scan-backend:
-          requires: [ build-backend ]
-      - scan-frontend:
-          requires: [ build-frontend ]
       - deploy-infrastructure:
           requires: [ test-frontend, test-backend, scan-frontend, scan-backend ]
           filters:
