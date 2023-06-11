@@ -503,7 +503,7 @@ jobs:
             aws cloudformation deploy \
               --template-file cloudfront.yml \
               --stack-name InitialStack \
-              --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides WorkflowID="bucket-91019" \
               --tags project=udapeople
       # Rollback if fail
       - revert-migrations:
@@ -673,6 +673,8 @@ workflows:
           requires: [ configure-infrastructure ]
       - deploy-backend:
           requires: [ configure-infrastructure ]
+      - promote-to-production:
+          requires: [ deploy-frontend, deploy-backend ]
 
 
 
