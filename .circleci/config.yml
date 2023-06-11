@@ -206,6 +206,12 @@ jobs:
             cd $(eval echo "$PROJECT_ROOT_DIR/frontend")
             npm install
             npm run build --force
+      - slack/notify:
+          event: pass
+          template: success_tagged_deploy_1
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
       - save_cache:
           paths: [/home/circleci/project/frontend/node_modules]
           key: frontend-build
@@ -247,6 +253,12 @@ jobs:
             mkdir --parents $WORKSPACE_DIR
             # Move the compressed file to workspace folder
             mv artifact-backend.tar.gz $WORKSPACE_DIR/artifact-backend.tar.gz
+      - slack/notify:
+          event: pass
+          template: success_tagged_deploy_1
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
       - persist_to_workspace:
           root: /home/circleci/workspace
           paths:
@@ -526,6 +538,12 @@ jobs:
             cd $(eval echo "$PROJECT_ROOT_DIR/frontend")
             npm install
             npm run test
+      - slack/notify:
+          event: pass
+          template: success_tagged_deploy_1
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
   test-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -542,6 +560,12 @@ jobs:
             cd $(eval echo "$PROJECT_ROOT_DIR/backend")
             npm install
             npm run test
+      - slack/notify:
+          event: pass
+          template: success_tagged_deploy_1
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   scan-frontend:
     docker:
@@ -563,6 +587,12 @@ jobs:
             # If the "npm audit fix" command above could not fix all critical vulnerabilities, try “npm audit fix --force” again
             npm audit fix --force
             npm audit --audit-level=critical
+      - slack/notify:
+          event: pass
+          template: success_tagged_deploy_1
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
   scan-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -583,6 +613,12 @@ jobs:
             # If the "npm audit fix" command above could not fix all critical vulnerabilities, try “npm audit fix --force” again
             npm audit fix --force
             npm audit --audit-level=critical
+      - slack/notify:
+          event: pass
+          template: success_tagged_deploy_1
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
   notify:
     docker:
       - image: cimg/base:stable
@@ -608,17 +644,14 @@ jobs:
 workflows:
   my-workflow:
     jobs:
-      - build-backend
       - build-frontend
-      - add_publicipaddress_to_inventory
-      - configure-infrastructure:
-          requires: [ add_publicipaddress_to_inventory ]
-      - deploy-frontend:
-          requires: [ build-frontend, configure-infrastructure ]
-      - deploy-backend:
-          requires: [ build-backend, configure-infrastructure ]
-      - smoke-test:
-          requires: [deploy-frontend, deploy-backend]
-      - notify:
-          context: project-3
+      - build-backend
+      - test-frontend:
+        requires: [ build-frontend ]
+      - test-backend:
+        requires: [ build-backend ]
+      - scan-backend:
+        requires: [ build-backend ]
+      - scan-frontend:
+        requires: [ build-frontend ]
 
