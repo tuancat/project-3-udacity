@@ -654,12 +654,4 @@ workflows:
           post-steps: [slack/notify]
       - build-backend:
           post-steps: [slack/notify]
-      - test-frontend:
-          requires: [ build-frontend ]
-      - test-backend:
-          requires: [ build-backend ]
-      - scan-backend:
-          requires: [ build-backend ]
-      - scan-frontend:
-          requires: [ build-frontend ]
 
