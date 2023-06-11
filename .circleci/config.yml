@@ -614,7 +614,7 @@ jobs:
                 }
               ]
             }
-          event: fail
+          event: always
 
 workflows:
   my-workflow:
