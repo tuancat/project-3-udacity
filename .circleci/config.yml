@@ -206,10 +206,6 @@ jobs:
             cd $(eval echo "$PROJECT_ROOT_DIR/frontend")
             npm install
             npm run build --force
-      - slack/notify:
-          event: fail
-          branch_pattern: main
-          template: basic_fail_1
       - save_cache:
           paths: [/home/circleci/project/frontend/node_modules]
           key: frontend-build
@@ -255,10 +251,6 @@ jobs:
           root: /home/circleci/workspace
           paths:
             - "artifact-backend.tar.gz"
-      - slack/notify:
-          event: fail
-          branch_pattern: main
-          template: basic_fail_1
       - save_cache:
           paths: [ /home/circleci/project/backend/node_modules ]
           key: backend-build
@@ -627,7 +619,7 @@ jobs:
 workflows:
   my-workflow:
     jobs:
-      - notify
       - build-frontend
-      - build-backend
+      - build-backend:
+          post-steps: [notify]
 
