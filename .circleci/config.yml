@@ -655,7 +655,18 @@ jobs:
 workflows:
   my-workflow:
     jobs:
-      - add_publicipaddress_to_inventory
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [ build-frontend ]
+      - test-backend:
+          requires: [ build-backend ]
+      - scan-backend:
+          requires: [ build-backend ]
+      - scan-frontend:
+          requires: [ build-frontend ]
+      - add_publicipaddress_to_inventory:
+          requires: [ scan-frontend, scan-backend]
       - configure-infrastructure:
           requires: [ add_publicipaddress_to_inventory ]
       - deploy-frontend:
