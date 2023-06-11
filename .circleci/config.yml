@@ -502,17 +502,9 @@ jobs:
             ls $(eval echo "$CIRCLE_WORKING_DIRECTORY")
             aws cloudformation deploy \
               --template-file cloudfront.yml \
-              --stack-name InitialStack \
+              --stack-name InitialStack-${CIRCLE_WORKFLOW_ID:0:5} \
               --parameter-overrides WorkflowID="bucket-91019" \
               --tags project=udapeople
-      # Rollback if fail
-      - revert-migrations:
-          migrations-key: migration_$CUR_SHORT_HASH
-      - destroy_environment:
-          stack_name: Udapeople-Frontend-${CIRCLE_WORKFLOW_ID:0:5}
-          bucket_name: bucket-${CIRCLE_WORKFLOW_ID:0:5}
-      - destroy_environment:
-          stack_name: Udapeople-Backend-${CIRCLE_WORKFLOW_ID:0:5}
 
   clean-up:
     docker:
