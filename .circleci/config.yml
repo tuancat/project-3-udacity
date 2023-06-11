@@ -618,7 +618,6 @@ workflows:
     jobs:
       - smoke-test
       - promote-to-production:
-          requires:
-            - "smoke-test"
+          requires: [smoke-test]
 
 
