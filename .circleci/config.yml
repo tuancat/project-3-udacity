@@ -484,7 +484,9 @@ jobs:
           stack_name: Udapeople-Backend-${CIRCLE_WORKFLOW_ID:0:5}
 
   promote-to-production:
-    executor: aws-cli/default
+    docker:
+      - image: amazon/aws-cli
+    # Docker image here that supports AWS CLI
     steps:
       - checkout
       - exports
