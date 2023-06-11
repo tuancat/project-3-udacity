@@ -486,18 +486,23 @@ jobs:
   promote-to-production:
     executor: aws-cli/default
     steps:
-      # This command will pull all of the files into a directory called project which can be found at ~/project.
       - checkout
-      # Export environment variable
       - exports
-      # Set up AWS Credentials
-      - aws-cli/setup
-      - attach_workspace:
-          at: /home/circleci/workspace
-      - deploy_stack:
-          stack_name: production-distro
-          template_file: $CIRCLE_WORKING_DIRECTORY/$TEMPLATE_ROOT_DIR/cloudfront.yml
-          parameter_overrides: S3StaticHost=$(cat $WORKSPACE_DIR/websiteurl)
+      - run:
+          name: Install tar utility
+          command: |
+            yum install -y tar gzip
+      - run:
+          name: "Get EC2 Instances Public IP Address"
+          command: |
+            pwd
+            ls
+            ls $(eval echo "$CIRCLE_WORKING_DIRECTORY")
+            aws cloudformation deploy \
+              --template-file cloudfront.yml \
+              --stack-name InitialStack \
+              --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=udapeople
       # Rollback if fail
       - revert-migrations:
           migrations-key: migration_$CUR_SHORT_HASH
