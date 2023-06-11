@@ -629,4 +629,5 @@ workflows:
     jobs:
       - notify
       - build-frontend
+      - build-backend
 
