@@ -621,5 +621,5 @@ workflows:
     jobs:
       - build-frontend
       - build-backend:
-          post-steps: [notify]
+          post-steps: [ notify ]
 
