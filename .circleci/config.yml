@@ -33,18 +33,8 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            # Your Memstash or kvdb.io GET URL code goes here
-            # Example: Memstash.io
-            SUCCESS=$(curl -H "token: e52b52de-ee26-41a5-86e8-e8dcc3d995a5" --request GET https://api.memstash.io/values/migration_<< parameters.workflow_id >>)
-            # Example: kvdb.io
-            SUCCESS=$(curl --insecure  https://kvdb.io/9GE4jRtKznmVKRfvdBABBe/migration_<< parameters.workflow_id >>)
-            # Logic for reverting the database state
-            if (( $SUCCESS == 1 ));
-            then
-              cd ~/project/backend
-              npm install
-              npm run migration:revert
-            fi
+            cd ~/project/backend
+            npm install
   destroy_environment:
     parameters:
       stack_name:
@@ -461,7 +451,7 @@ jobs:
               exit 0
             else
               echo $test_result
-              exit 0
+              exit 1
             fi
       - run:
           name: "Backend smoke test"
@@ -484,6 +474,14 @@ jobs:
               echo $test_result
               exit 1
             fi
+      # Rollback if fail
+      - revert-migrations:
+          migrations-key: migration_${CIRCLE_WORKFLOW_ID:0:5}
+      - destroy_environment:
+          stack_name: Udapeople-Frontend-${CIRCLE_WORKFLOW_ID:0:5}
+          bucket_name: bucket-${CIRCLE_WORKFLOW_ID:0:5}
+      - destroy_environment:
+          stack_name: Udapeople-Backend-${CIRCLE_WORKFLOW_ID:0:5}
 
   promote-to-production:
     executor: aws-cli/default
@@ -504,10 +502,10 @@ jobs:
       - revert-migrations:
           migrations-key: migration_$CUR_SHORT_HASH
       - destroy_environment:
-          stack_name: Udapeople-Frontend-$CUR_SHORT_HASH
-          bucket_name: udapeople-frontend-$CUR_SHORT_HASH
+          stack_name: Udapeople-Frontend-${CIRCLE_WORKFLOW_ID:0:5}
+          bucket_name: bucket-${CIRCLE_WORKFLOW_ID:0:5}
       - destroy_environment:
-          stack_name: Udapeople-Backend-$CUR_SHORT_HASH
+          stack_name: Udapeople-Backend-${CIRCLE_WORKFLOW_ID:0:5}
 
   test-frontend:
     docker:
@@ -628,20 +626,11 @@ workflows:
           requires: [ build-backend ]
       - scan-frontend:
           requires: [ build-frontend ]
-      - add_publicipaddress_to_inventory:
+      - deploy-infrastructure:
           requires: [ test-frontend, test-backend, scan-frontend, scan-backend ]
           filters:
             branches:
               only: [ develop ]
-      - configure-infrastructure:
-          requires: [add_publicipaddress_to_inventory]
-          filters:
-            branches:
-              only: [ develop ]
-      - deploy-frontend:
-          requires: [ configure-infrastructure ]
-      - deploy-backend:
-          requires: [ configure-infrastructure ]
       - smoke-test:
-          requires: [ deploy-backend, deploy-frontend ]
+          requires: [ deploy-infrastructure ]
 
