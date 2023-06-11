@@ -1,0 +1,3 @@
+GitHub repository: https://github.com/tuancat/project-3-udacity
+S3 Bucket: http://bucket-91019.s3-website-us-east-1.amazonaws.com/#/employees
+
