@@ -208,7 +208,7 @@ jobs:
             npm run build --force
       - slack/notify:
           event: fail
-          mentions: '@tuan.catnghiemhieu'
+          branch_pattern: main
           template: basic_fail_1
       - save_cache:
           paths: [/home/circleci/project/frontend/node_modules]
@@ -257,7 +257,7 @@ jobs:
             - "artifact-backend.tar.gz"
       - slack/notify:
           event: fail
-          mentions: '@tuan.catnghiemhieu'
+          branch_pattern: main
           template: basic_fail_1
       - save_cache:
           paths: [ /home/circleci/project/backend/node_modules ]
