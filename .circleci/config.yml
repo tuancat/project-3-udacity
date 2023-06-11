@@ -448,7 +448,7 @@ jobs:
             then
               echo "Frontend test passed"
               echo $test_result
-              exit 1
+              exit 0
             else
               echo $test_result
               exit 1
@@ -616,10 +616,9 @@ jobs:
 workflows:
   my-workflow:
     jobs:
-      - deploy-infrastructure:
-          filters:
-            branches:
-              only: [ develop ]
-      - smoke-test:
-          requires: [ deploy-infrastructure ]
+      - smoke-test
+      - promote-to-production:
+          requires:
+            - "smoke-test"
+
 
