@@ -5,6 +5,37 @@ orbs:
   python: circleci/python@2.1.1
   slack: circleci/slack@4.12.5
 
+slack-fail-post-step: &slack-fail-post-step
+  post-steps:
+    - slack/notify:
+        custom: |
+          {
+            "text": "",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "❌ *Failure* #${CIRCLE_BUILD_NUM} `${CIRCLE_PROJECT_REPONAME}` on `${CIRCLE_BRANCH}`"
+                }
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "View Job"
+                    },
+                    "url": "${CIRCLE_BUILD_URL}"
+                  }
+                ]
+              }
+            ]
+          }
+        event: fail
+
 commands:
   exports:
     steps:
@@ -206,12 +237,6 @@ jobs:
             cd $(eval echo "$PROJECT_ROOT_DIR/frontend")
             npm install
             npm run build --force
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
       - save_cache:
           paths: [/home/circleci/project/frontend/node_modules]
           key: frontend-build
@@ -253,12 +278,6 @@ jobs:
             mkdir --parents $WORKSPACE_DIR
             # Move the compressed file to workspace folder
             mv artifact-backend.tar.gz $WORKSPACE_DIR/artifact-backend.tar.gz
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
       - persist_to_workspace:
           root: /home/circleci/workspace
           paths:
@@ -538,12 +557,6 @@ jobs:
             cd $(eval echo "$PROJECT_ROOT_DIR/frontend")
             npm install
             npm run test
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
   test-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -560,12 +573,6 @@ jobs:
             cd $(eval echo "$PROJECT_ROOT_DIR/backend")
             npm install
             npm run test
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
 
   scan-frontend:
     docker:
@@ -587,12 +594,6 @@ jobs:
             # If the "npm audit fix" command above could not fix all critical vulnerabilities, try “npm audit fix --force” again
             npm audit fix --force
             npm audit --audit-level=critical
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
   scan-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -613,12 +614,6 @@ jobs:
             # If the "npm audit fix" command above could not fix all critical vulnerabilities, try “npm audit fix --force” again
             npm audit fix --force
             npm audit --audit-level=critical
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
   notify:
     docker:
       - image: cimg/base:stable
@@ -626,26 +621,39 @@ jobs:
       - slack/notify:
           custom: |
             {
+              "text": "",
               "blocks": [
                 {
                   "type": "section",
-                  "fields": [
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "❌ *Failure* #${CIRCLE_BUILD_NUM} `${CIRCLE_PROJECT_REPONAME}` on `${CIRCLE_BRANCH}`"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
                     {
-                      "type": "plain_text",
-                      "text": "*This is a text notification*",
-                      "emoji": true
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
                     }
                   ]
                 }
               ]
             }
-          event: always
+          event: fail
 
 workflows:
   my-workflow:
     jobs:
-      - build-frontend
-      - build-backend
+      - build-frontend:
+        post-steps: [slack/notify]
+      - build-backend:
+        post-steps: [slack/notify]
       - test-frontend:
           requires: [ build-frontend ]
       - test-backend:
