@@ -578,7 +578,7 @@ jobs:
           name: "Scan backend"
           command: |
             cd $(eval echo "$PROJECT_ROOT_DIR/backend")
-            npm audit fix --audit-level=critical --force
+            npm audit fix --audit-level=critical
             # If the "npm audit fix" command above could not fix all critical vulnerabilities, try “npm audit fix --force” again
             npm audit fix --force
             npm audit --audit-level=critical
