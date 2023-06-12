@@ -35,6 +35,7 @@ commands:
           command: |
             cd ~/project/backend
             npm install
+            npm run migration:revert
   destroy_environment:
     parameters:
       stack_name:
@@ -389,7 +390,7 @@ jobs:
             npm install
             npm run build 
             tar -czvf "artifact-$CUR_SHORT_HASH.tar.gz" dist
-            aws s3 sync dist s3://bucket-91019 --delete
+            aws s3 sync dist s3://bucket-7f490 --delete
   deploy-backend:
     executor:
       name: python/default
@@ -448,8 +449,7 @@ jobs:
             then
               echo "Frontend test passed"
               echo $test_result
-              exit 0
-            else
+              exit 1
               echo $test_result
               exit 1
             fi
@@ -532,6 +532,7 @@ jobs:
       - run:
           name: Remove old stacks and files
           command: |
+            aws s3 rm "s3://bucket-7f490" --recursive
             aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
             aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
   
@@ -663,6 +664,10 @@ workflows:
           requires: [ add_publicipaddress_to_inventory ]
       - deploy-frontend:
           requires: [ configure-infrastructure ]
+      - clean-up:
+          requires: [ deploy-frontend ]
+      - smoke-test:
+          requires: [ deploy-frontend ]
 
 
 
