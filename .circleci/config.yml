@@ -657,8 +657,12 @@ workflows:
           requires: [ build-backend ]
       - scan-frontend:
           requires: [ build-frontend ]
-      - deploy-infrastructure:
-          requires: [ scan-frontend, scan-backend]
+      - add_publicipaddress_to_inventory:
+          requires: [ scan-frontend, scan-backend ]
+      - configure-infrastructure:
+          requires: [ add_publicipaddress_to_inventory ]
+      - deploy-frontend:
+          requires: [ configure-infrastructure ]
 
 
 
